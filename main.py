@@ -43,5 +43,15 @@ if __name__ == "__main__":
             else:
                 break
 
+        def getLevel(school):
+            if school == '小学':
+                return 0
+            elif school == '中学':
+                return 1
+            elif school == '高中':
+                return 2
+
+        level = getLevel(usertype)
+
         for i in range(1, num + 1):
-            print(Generator.generate(1))
+            print(Generator.generate(level))
