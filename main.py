@@ -1,6 +1,6 @@
-import datetime
 import os
 import re
+from datetime import datetime
 
 from module.generator import Generator
 from module.user import User
@@ -16,6 +16,50 @@ userSet = {
     '王五2': User('高中', '王五2', '123'),
     '王五3': User('高中', '王五3', '123')
 }
+
+probSet = {
+    '张三1': [False, None],
+    '张三2': [False, None],
+    '张三3': [False, None],
+    '李四1': [False, None],
+    '李四2': [False, None],
+    '李四3': [False, None],
+    '王五1': [False, None],
+    '王五2': [False, None],
+    '王五3': [False, None]
+}
+
+basePath = '%s/data' % os.getcwd()
+
+def initSet(username):
+    dirPath = '%s/%s' % (basePath, username)
+    probs = set()
+
+    if os.path.exists(dirPath):
+        files = os.listdir(dirPath)
+
+        def filterRule(e):
+            if not isinstance(e, str):
+                return False
+            if not os.path.isfile('%s/%s' % (dirPath, e)) or not e.endswith('.txt'):
+                return False
+            filename = os.path.splitext(os.path.basename(e))[0]
+            try:
+                datetime.strptime(filename, '%Y-%m-%d-%H-%M-%S')
+            except Exception as e:
+                return False
+            else:
+                return True
+
+        files = list(filter(filterRule, files))
+        for filename in files:
+            with open('%s/%s' % (dirPath, filename), 'r', encoding='utf-8') as f:
+                for line in f.readlines():
+                    line = line.strip()
+                    if line != '':
+                        probs.add(re.sub(r'^\d+:\s+', '', line))
+
+    return probs
 
 if __name__ == "__main__":
     authenticated = False
@@ -95,14 +139,32 @@ if __name__ == "__main__":
                     return 2
 
             level = getLevel(usertype)
-            curTime = datetime.datetime.now()
-            dirPath = '%s/data/%s' % (os.getcwd(), user.getUsername())
+            curTime = datetime.now()
+            dirPath = '%s/%s' % (basePath, user.getUsername())
             if not os.path.exists(dirPath):
                 os.makedirs(dirPath)
+
             try:
+                """
+                如果未初始化，则初始化试题集合
+                """
+                cell = probSet.get(user.getUsername())
+                if not cell[0]:
+                    cell[1] = initSet(user.getUsername())
+
+                """
+                生成试题并添加进集合
+                """
                 with open('%s/%s.txt' % (dirPath, curTime.strftime('%Y-%m-%d-%H-%M-%S')), 'w', encoding='utf-8') as f:
                     for i in range(1, num + 1):
-                        f.write('%s: %s\n\n' % (i, Generator.generate(level)))
+                        while True:
+                            prob = Generator.generate(level)
+                            if prob not in cell[1]:
+                                cell[1].add(prob)
+                                f.write('%s: %s\n\n' % (i, prob))
+                                break
+                            else:
+                                print('发现重复，准备重新生成：', prob)
             except Exception as e:
                 print('生成出错！')
                 print(e)
