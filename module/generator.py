@@ -3,7 +3,7 @@ from random import shuffle
 
 
 class Generator:
-    opset = ['+', '-', '*', '/', '²', '√', 'sin', 'cos', 'tan']
+    opset = ['+', '-', '×', '÷', '²', '√', 'sin', 'cos', 'tan']
 
     @staticmethod
     def generate(level):
@@ -63,14 +63,14 @@ class Generator:
                 返回运算符或操作数的优先级
                 操作数：0
                 一元运算符：1
-                '*'、'/'：2
+                '×'、'÷'：2
                 '+'、'-'：3
                 """
                 if isinstance(item, int):
                     return 0
                 elif item == '+' or item == '-':
                     return 3
-                elif item == '*' or item == '/':
+                elif item == '×' or item == '÷':
                     return 2
                 else:
                     return 1
