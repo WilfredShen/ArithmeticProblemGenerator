@@ -31,6 +31,7 @@ probSet = {
 
 basePath = '%s/data' % os.getcwd()
 
+
 def initSet(username):
     dirPath = '%s/%s' % (basePath, username)
     probs = set()
@@ -60,6 +61,7 @@ def initSet(username):
                         probs.add(re.sub(r'^\d+:\s+', '', line))
 
     return probs
+
 
 if __name__ == "__main__":
     authenticated = False
